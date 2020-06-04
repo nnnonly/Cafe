@@ -14,8 +14,8 @@ import javax.swing.border.LineBorder;
 import javax.swing.plaf.basic.BasicInternalFrameTitlePane.IconifyAction;
 import javax.swing.table.DefaultTableModel;
 
-import org.omg.CORBA.PRIVATE_MEMBER;
-import org.omg.CORBA.PUBLIC_MEMBER;
+//import org.omg.CORBA.PRIVATE_MEMBER;
+//import org.omg.CORBA.PUBLIC_MEMBER;
 
 import javax.swing.JLabel;
 import javax.swing.ImageIcon;
