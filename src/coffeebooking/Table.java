@@ -22,7 +22,7 @@ public class Table {
     private JButton button;
 
     public Table(JPanel rootPanel, String table_label, String ICON_DIR) {
-        this.currentPanel = currentPanel;
+        this.currentPanel = rootPanel;
 
         wrapPanel = new JPanel();
         wrapPanel.setBackground(new Color(204, 255, 153));

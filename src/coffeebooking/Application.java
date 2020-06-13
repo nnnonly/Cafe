@@ -1,67 +1,63 @@
 package coffeebooking;
 
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.WindowConstants;
-import javax.swing.border.EmptyBorder;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Event;
-import java.awt.FlowLayout;
 
 import javax.swing.border.LineBorder;
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane.IconifyAction;
 import javax.swing.table.DefaultTableModel;
 
-import org.omg.CORBA.PRIVATE_MEMBER;
-import org.omg.CORBA.PUBLIC_MEMBER;
-
 import javax.swing.JLabel;
-import javax.swing.ImageIcon;
 import java.awt.Font;
 import javax.swing.JTextField;
 import javax.swing.JTabbedPane;
-import javax.swing.JMenu;
 import javax.swing.JButton;
-import javax.swing.JTextArea;
 import javax.swing.JTable;
-import javax.swing.JScrollBar;
-import java.awt.Scrollbar;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.awt.event.ActionEvent;
-import java.awt.GridLayout;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingConstants;
 import javax.swing.JScrollPane;
 import java.awt.event.MouseAdapter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.Vector;
+import java.util.stream.Collectors;
 
 public class Application extends JFrame {
 
     private JPanel contentPane;
     private JFrame frame;
-    private JTextField textField;
-    private JTextField textTable;
-    private JTextField textField_2;
-    private JTextField textField_3;
-    private JTextField textField_4;
-    private JTextField tenSP;
-    private JTextField cost;
-    private JTextField textField_1;
-    private JTable table_1;
-    private JTable table_2;
-    private JTable table_3;
-    private JTextField textField_5;
-
+    private JTextField txtIDBill;
+    private JTextField txtTableBook;
+    private JTextField txtDateBook;
+    private JTextField txtTimeBook;
+    private JTextField txtDrinkSearch;
+    private JTextField txtSelectedMeal;
+    private JTextField txtQuantity;
+    private JTextField txtSearchFood;
+    private JTable foodTable;
+    private JTable drinkTable;
+    private JTable orderedTable;
+    private JButton btnOrder;
+    private JTextField txtTotalVND;
+    private JButton btnBook;
     private JPanel bookTablePanel;
     private ArrayList<Table> listTable;
+
+    private JButton btnDrinkSearch;
+    private JButton btnPayment;
+    private JButton btnCheckBill;
+    private Vector listOrder = new Vector();
+    private ArrayList<OrderDetails> listOrderDetails = new ArrayList<>();
+
+    private float tmpPrice = 0;
 
     /**
      * Create the frame.
@@ -88,11 +84,41 @@ public class Application extends JFrame {
     }
 
     public void init() {
+        listOrderDetails = new ArrayList<>();
         listTable = new ArrayList<>();
         bookTable();
         menu();
         listOrder();
         header();
+    }
+
+    private void header() {
+        JPanel panel_1 = new JPanel();
+        panel_1.setBackground(new Color(255, 255, 255));
+        panel_1.setBounds(0, 0, 1258, 47);
+        contentPane.add(panel_1);
+        panel_1.setLayout(null);
+
+        JLabel label = new JLabel("-");
+        label.setForeground(new Color(51, 153, 153));
+        label.setFont(new Font("Showcard Gothic", Font.BOLD, 32));
+        label.setBounds(1137, 0, 39, 47);
+        panel_1.add(label);
+
+        JButton btnX = new JButton("X");
+        btnX.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent arg0) {
+                System.exit(0);
+            }
+        });
+
+        btnX.setForeground(new Color(51, 153, 153));
+        btnX.setFont(new Font("Showcard Gothic", Font.BOLD, 31));
+        btnX.setBounds(1188, 0, 70, 47);
+        btnX.setBackground(new Color(255, 255, 255));
+        panel_1.add(btnX);
+
     }
 
     private void bookTable() {
@@ -109,21 +135,12 @@ public class Application extends JFrame {
         bookTablePanel.add(lblTable);
 
         //Booking button
-        JButton btnBook = new JButton("Book");
-        btnBook.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                for (Table table : listTable) {
-                    if(table.getStatus() == 1){
-                        table.updateOnBookStatus();
-                    }
-                }
-            }
-        });
+        btnBook = new JButton("Book");
+        btnBookOnClick(btnBook);
 
         btnBook.setBackground(new Color(204, 255, 153));
         btnBook.setBounds(257, 49, 97, 25);
         bookTablePanel.add(btnBook);
-        
 
         //seting up whole table
         Table table1 = new Table(bookTablePanel, "Table 1", CONSTANT.ICON_COFFE_DIR);
@@ -184,17 +201,17 @@ public class Application extends JFrame {
         tabbedPane.addTab("FOOD", null, tab2, null);
         tab2.setLayout(null);
 
-        textField_1 = new JTextField();
-        textField_1.setEditable(false);
-        textField_1.setColumns(10);
-        textField_1.setBounds(12, 27, 203, 30);
-        textField_1.setBackground(new Color(255, 255, 255));
-        tab2.add(textField_1);
+        txtSearchFood = new JTextField();
+        txtSearchFood.setEditable(true);
+        txtSearchFood.setColumns(10);
+        txtSearchFood.setBounds(12, 27, 203, 30);
+        txtSearchFood.setBackground(new Color(255, 255, 255));
+        tab2.add(txtSearchFood);
 
-        JButton button_1 = new JButton("Search");
-        button_1.setFont(new Font("SimSun", Font.PLAIN, 16));
-        button_1.setBounds(245, 29, 97, 25);
-        tab2.add(button_1);
+        JButton btnSearchFood = new JButton("Search");
+        btnSearchFood.setFont(new Font("SimSun", Font.PLAIN, 16));
+        btnSearchFood.setBounds(245, 29, 97, 25);
+        tab2.add(btnSearchFood);
 
         JPanel panel_2 = new JPanel();
         panel_2.setBounds(12, 98, 356, 326);
@@ -205,32 +222,22 @@ public class Application extends JFrame {
         scrollPane.setBounds(0, 0, 356, 326);
         panel_2.add(scrollPane);
 
-        table_1 = new JTable();
-        table_1.setModel(new DefaultTableModel(
-                new Object[][]{
-                    {null, null, null},
-                    {null, null, null},
-                    {null, null, null},
-                    {null, null, null},
-                    {null, null, null},
-                    {null, null, null},
-                    {null, null, null},
-                    {null, null, null},
-                    {null, null, null},
-                    {null, null, null},},
-                new String[]{
-                    "ID", "Name", "Cost"
-                }
-        ) {
-            boolean[] columnEditables = new boolean[]{
-                false, false, false
-            };
+        foodTable = new JTable();
 
-            public boolean isCellEditable(int row, int column) {
-                return columnEditables[column];
-            }
-        });
-        scrollPane.setViewportView(table_1);
+        Vector dataModel = new Vector();
+        CoffeeBooking.data.inorder();
+        ArrayList<Meal> output = CoffeeBooking.data.getOutput();
+
+        for (Meal meal : output) {
+            Vector _meal = new Vector();
+            _meal.add(meal.getName());
+            _meal.add(meal.getPrice());
+            _meal.add(meal.getTimeEstimate());
+            dataModel.add(_meal);
+        }
+
+        setupTable(dataModel, CONSTANT.getFoodHeader(), foodTable, scrollPane);
+        btnSearchOnClick(btnSearchFood, txtSearchFood, foodTable, scrollPane);
 
         JPanel tab1 = new JPanel();
         tab1.setBackground(new Color(204, 255, 153));
@@ -238,16 +245,16 @@ public class Application extends JFrame {
         tabbedPane.setForegroundAt(1, Color.BLACK);
         tab1.setLayout(null);
 
-        textField_4 = new JTextField();
-        textField_4.setBounds(12, 25, 203, 30);
-        textField_4.setBackground(new Color(255, 255, 255));
-        tab1.add(textField_4);
-        textField_4.setColumns(10);
+        txtDrinkSearch = new JTextField();
+        txtDrinkSearch.setBounds(12, 25, 203, 30);
+        txtDrinkSearch.setBackground(new Color(255, 255, 255));
+        tab1.add(txtDrinkSearch);
+        txtDrinkSearch.setColumns(10);
 
-        JButton btnSearch = new JButton("Search");
-        btnSearch.setFont(new Font("SimSun", Font.PLAIN, 16));
-        btnSearch.setBounds(243, 27, 97, 25);
-        tab1.add(btnSearch);
+        btnDrinkSearch = new JButton("Search");
+        btnDrinkSearch.setFont(new Font("SimSun", Font.PLAIN, 16));
+        btnDrinkSearch.setBounds(243, 27, 97, 25);
+        tab1.add(btnDrinkSearch);
 
         JPanel panel_3 = new JPanel();
         panel_3.setBounds(12, 90, 356, 334);
@@ -258,91 +265,46 @@ public class Application extends JFrame {
         scrollPane_1.setBounds(0, 0, 356, 334);
         panel_3.add(scrollPane_1);
 
-        table_2 = new JTable();
-        table_2.setModel(new DefaultTableModel(
-            new Object[][]{
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},},
-            new String[]{
-                "ID", "Name", "Cost"
-            }
-    ) {
-        boolean[] columnEditables = new boolean[]{
-            false, false, false
-        };
+        drinkTable = new JTable();
 
-        public boolean isCellEditable(int row, int column) {
-            return columnEditables[column];
-        }
-    });
-        scrollPane_1.setViewportView(table_2);
+        setupTable(dataModel, CONSTANT.getFoodHeader(), drinkTable, scrollPane_1);
+        btnSearchOnClick(btnDrinkSearch, txtDrinkSearch, drinkTable, scrollPane_1);
 
         JLabel lblOrder = new JLabel("Menu");
         lblOrder.setFont(new Font("Tempus Sans ITC", Font.BOLD, 34));
         lblOrder.setBounds(130, 13, 105, 36);
         pnMenu.add(lblOrder);
 
-        JButton btnOrder = new JButton("Order");
+        btnOrder = new JButton("Order");
         btnOrder.setFont(new Font("SimSun", Font.BOLD, 18));
         btnOrder.setBackground(new Color(204, 255, 153));
         btnOrder.setBounds(213, 610, 117, 44);
         pnMenu.add(btnOrder);
+        btnOrderOnClick(btnOrder);
 
         JLabel lblDescription = new JLabel("Description");
         lblDescription.setFont(new Font("SimSun", Font.PLAIN, 23));
         lblDescription.setBounds(12, 556, 153, 28);
         pnMenu.add(lblDescription);
 
-        tenSP = new JTextField();
-        tenSP.setEditable(false);
-        tenSP.setBackground(new Color(255, 255, 255));
-        tenSP.setBounds(22, 598, 143, 28);
-        pnMenu.add(tenSP);
-        tenSP.setColumns(10);
+        txtSelectedMeal = new JTextField();
+        txtSelectedMeal.setEditable(false);
+        txtSelectedMeal.setBackground(new Color(255, 255, 255));
+        txtSelectedMeal.setBounds(22, 598, 143, 28);
+        pnMenu.add(txtSelectedMeal);
+        txtSelectedMeal.setColumns(10);
 
-        cost = new JTextField();
-        cost.setEditable(false);
-        cost.setBackground(new Color(255, 255, 255));
-        cost.setColumns(10);
-        cost.setBounds(22, 638, 143, 28);
-        pnMenu.add(cost);
+        txtQuantity = new JTextField();
+        txtQuantity.setEditable(false);
+        txtQuantity.setBackground(new Color(255, 255, 255));
+        txtQuantity.setColumns(10);
+        txtQuantity.setBounds(22, 638, 143, 28);
+        pnMenu.add(txtQuantity);
     }
 
-    private void header() {
-        JPanel panel_1 = new JPanel();
-        panel_1.setBackground(new Color(255, 255, 255));
-        panel_1.setBounds(0, 0, 1258, 47);
-        contentPane.add(panel_1);
-        panel_1.setLayout(null);
-
-        JLabel label = new JLabel("-");
-        label.setForeground(new Color(51, 153, 153));
-        label.setFont(new Font("Showcard Gothic", Font.BOLD, 32));
-        label.setBounds(1137, 0, 39, 47);
-        panel_1.add(label);
-
-        JButton btnX = new JButton("X");
-        btnX.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent arg0) {
-                System.exit(0);
-            }
-        });
-
-        btnX.setForeground(new Color(51, 153, 153));
-        btnX.setFont(new Font("Showcard Gothic", Font.BOLD, 31));
-        btnX.setBounds(1188, 0, 70, 47);
-        btnX.setBackground(new Color(255, 255, 255));
-        panel_1.add(btnX);
-
+    private Object[][] loadTable() {
+        Object[][] res = new Object[5][3];
+        return res;
     }
 
     private void listOrder() {
@@ -357,65 +319,67 @@ public class Application extends JFrame {
         lblIdBill.setBounds(0, 13, 76, 36);
         pnListOrder.add(lblIdBill);
 
-        textField = new JTextField();
-        textField.setEditable(false);
-        textField.setBounds(75, 13, 124, 29);
-        textField.setBackground(new Color(255, 255, 255));
-        pnListOrder.add(textField);
-        textField.setColumns(10);
+        txtIDBill = new JTextField();
+        txtIDBill.setEditable(false);
+        txtIDBill.setBounds(75, 13, 124, 29);
+        txtIDBill.setBackground(new Color(255, 255, 255));
+        pnListOrder.add(txtIDBill);
+        txtIDBill.setColumns(10);
 
-        JLabel lblTable_1 = new JLabel("Table");
-        lblTable_1.setFont(new Font("Tempus Sans ITC", Font.PLAIN, 25));
-        lblTable_1.setBounds(211, 23, 56, 16);
-        pnListOrder.add(lblTable_1);
+        JLabel lblTableBook = new JLabel("Table");
+        lblTableBook.setFont(new Font("Tempus Sans ITC", Font.PLAIN, 25));
+        lblTableBook.setBounds(211, 23, 56, 16);
+        pnListOrder.add(lblTableBook);
 
-        textTable = new JTextField();
-        textTable.setEditable(false);
-        textTable.setColumns(10);
-        textTable.setBounds(279, 13, 110, 29);
-        textTable.setBackground(new Color(255, 255, 255));
-        pnListOrder.add(textTable);
+        txtTableBook = new JTextField();
+        txtTableBook.setEditable(false);
+        txtTableBook.setColumns(10);
+        txtTableBook.setBounds(279, 13, 110, 29);
+        txtTableBook.setBackground(new Color(255, 255, 255));
+        pnListOrder.add(txtTableBook);
 
-        JLabel label_1 = new JLabel(" Date");
-        label_1.setFont(new Font("Tempus Sans ITC", Font.PLAIN, 25));
-        label_1.setBounds(0, 62, 76, 36);
-        pnListOrder.add(label_1);
+        JLabel lblDateBook = new JLabel(" Date");
+        lblDateBook.setFont(new Font("Tempus Sans ITC", Font.PLAIN, 25));
+        lblDateBook.setBounds(0, 62, 76, 36);
+        pnListOrder.add(lblDateBook);
 
-        textField_2 = new JTextField();
-        textField_2.setEditable(false);
-        textField_2.setColumns(10);
-        textField_2.setBounds(75, 62, 124, 29);
-        textField_2.setBackground(new Color(255, 255, 255));
-        pnListOrder.add(textField_2);
+        txtDateBook = new JTextField();
+        txtDateBook.setEditable(false);
+        txtDateBook.setColumns(10);
+        txtDateBook.setBounds(75, 62, 124, 29);
+        txtDateBook.setBackground(new Color(255, 255, 255));
+        pnListOrder.add(txtDateBook);
 
-        JLabel label_2 = new JLabel("Time");
-        label_2.setFont(new Font("Tempus Sans ITC", Font.PLAIN, 25));
-        label_2.setBounds(211, 66, 56, 29);
-        pnListOrder.add(label_2);
+        JLabel lblTimeBook = new JLabel("Time");
+        lblTimeBook.setFont(new Font("Tempus Sans ITC", Font.PLAIN, 25));
+        lblTimeBook.setBounds(211, 66, 56, 29);
+        pnListOrder.add(lblTimeBook);
 
-        textField_3 = new JTextField();
-        textField_3.setEditable(false);
-        textField_3.setColumns(10);
-        textField_3.setBounds(279, 62, 110, 29);
-        textField_3.setBackground(new Color(255, 255, 255));
-        pnListOrder.add(textField_3);
+        txtTimeBook = new JTextField();
+        txtTimeBook.setEditable(false);
+        txtTimeBook.setColumns(10);
+        txtTimeBook.setBounds(279, 62, 110, 29);
+        txtTimeBook.setBackground(new Color(255, 255, 255));
+        pnListOrder.add(txtTimeBook);
 
         JLabel label_3 = new JLabel(" List Order");
         label_3.setFont(new Font("Sitka Small", Font.BOLD | Font.ITALIC, 25));
         label_3.setBounds(36, 141, 265, 36);
         pnListOrder.add(label_3);
 
-        JButton btnPayment = new JButton("PayMent");
+        btnPayment = new JButton("PayMent");
         btnPayment.setFont(new Font("SimSun", Font.BOLD, 18));
         btnPayment.setBackground(new Color(245, 245, 245));
         btnPayment.setBounds(239, 614, 131, 48);
         pnListOrder.add(btnPayment);
+        btnPaymentOnClick(btnPayment);
 
-        JButton button = new JButton("CheckBill");
-        button.setFont(new Font("SimSun", Font.BOLD, 18));
-        button.setBackground(new Color(245, 245, 245));
-        button.setBounds(53, 614, 134, 48);
-        pnListOrder.add(button);
+        btnCheckBill = new JButton("CheckBill");
+        btnCheckBill.setFont(new Font("SimSun", Font.BOLD, 18));
+        btnCheckBill.setBackground(new Color(245, 245, 245));
+        btnCheckBill.setBounds(53, 614, 134, 48);
+        pnListOrder.add(btnCheckBill);
+        btnCheckBillOnClick(btnCheckBill);
 
         JPanel panel_4 = new JPanel();
         panel_4.setBounds(0, 200, 421, 338);
@@ -426,32 +390,17 @@ public class Application extends JFrame {
         scrollPane_2.setBounds(0, 0, 421, 190);
         panel_4.add(scrollPane_2);
 
-        table_3 = new JTable();
-        table_3.setModel(new DefaultTableModel(
-                new Object[][]{
-                    {null, null, null, null, null, null},
-                    {null, null, null, null, null, null},
-                    {null, null, null, null, null, null},
-                    {null, null, null, null, null, null},
-                    {null, null, null, null, null, null},
-                    {null, null, null, null, null, null},
-                    {null, null, null, null, null, null},
-                    {null, null, null, null, null, null},
-                    {null, null, null, null, null, null},
-                    {null, null, null, null, null, null},},
-                new String[]{
-                    "ID KHTX", "ID", "Name", "Cost", "Amount", "Total"
-                }
-                ) {
-                    boolean[] columnEditables = new boolean[]{
-                        false, false, false, false, false, false
-                    };
-            
-                    public boolean isCellEditable(int row, int column) {
-                        return columnEditables[column];
-                    }
-                });
-        scrollPane_2.setViewportView(table_3);
+        orderedTable = new JTable();
+        orderedTable.setModel(new DefaultTableModel(listOrder, CONSTANT.getOrderHeader()) {
+            boolean[] columnEditables = new boolean[]{
+                false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int row, int column) {
+                return columnEditables[column];
+            }
+        });
+        scrollPane_2.setViewportView(orderedTable);
 
         JLabel lblTotal = new JLabel("Total:");
         lblTotal.setFont(new Font("SimSun", Font.PLAIN, 21));
@@ -459,16 +408,140 @@ public class Application extends JFrame {
         lblTotal.setBounds(81, 245, 93, 29);
         panel_4.add(lblTotal);
 
-        textField_5 = new JTextField();
-        textField_5.setBackground(new Color(255, 255, 255));
-        textField_5.setEditable(false);
-        textField_5.setBounds(174, 244, 155, 36);
-        panel_4.add(textField_5);
-        textField_5.setColumns(10);
+        txtTotalVND = new JTextField();
+        txtTotalVND.setBackground(new Color(255, 255, 255));
+        txtTotalVND.setEditable(false);
+        txtTotalVND.setBounds(174, 244, 155, 36);
+        panel_4.add(txtTotalVND);
+        txtTotalVND.setColumns(10);
 
         JLabel lblVnd = new JLabel("VND");
         lblVnd.setFont(new Font("SimSun", Font.PLAIN, 21));
         lblVnd.setBounds(341, 251, 56, 16);
         panel_4.add(lblVnd);
     }
+
+    private void btnSearchOnClick(JButton btnSearch, JTextField textField, JTable table, JScrollPane scrollPane) {
+        btnSearch.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                String keyword = textField.getText();
+                CoffeeBooking.data.inorder();
+                ArrayList<Meal> output = CoffeeBooking.data.getOutput();
+                List<Meal> filter = output.stream().
+                        filter(meal -> meal.getName().toLowerCase().contains(keyword.toLowerCase()))
+                        .collect(Collectors.toList());
+
+                Vector dataModel = new Vector();
+                for (Meal meal : filter) {
+                    Vector _meal = new Vector();
+                    _meal.add(meal.getName());
+                    _meal.add(meal.getPrice());
+                    _meal.add(meal.getTimeEstimate());
+                    dataModel.add(_meal);
+                }
+                setupTable(dataModel, CONSTANT.getFoodHeader(), table, scrollPane);
+            }
+        });
+    }
+
+    private void setupTable(Vector dataModel, Vector header, JTable table_1, JScrollPane scrollPane) {
+        table_1.setModel(new DefaultTableModel(dataModel, header) {
+            boolean[] columnEditables = new boolean[]{
+                false, false, false
+            };
+
+            public boolean isCellEditable(int row, int column) {
+                return columnEditables[column];
+            }
+        });
+        scrollPane.setViewportView(table_1);
+
+        table_1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                JTable source = (JTable) evt.getSource();
+                int row = source.rowAtPoint(evt.getPoint());
+                String selectedRow = source.getModel().getValueAt(row, 0) + "";
+                try {
+                    tmpPrice = Float.parseFloat(source.getModel().getValueAt(row, 1) + "");
+                } catch (Exception e) {
+                    System.out.println("Code ngu roi");
+                }
+                txtSelectedMeal.setText(selectedRow);
+                txtQuantity.setText(1 + "");
+                txtQuantity.setEditable(true);
+            }
+        });
+    }
+
+    private void btnBookOnClick(JButton btnBook) {
+        btnBook.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                //update table color
+                String bookingTable = "";
+                for (Table table : listTable) {
+                    if (table.getStatus() == 1) {
+                        table.updateOnBookStatus();
+                    }
+                    if (table.getStatus() == 1 || table.getStatus() == 2) {
+                        bookingTable += table.getButton().getText() + " ";
+                    }
+                }
+                //set field to right panel
+                txtIDBill.setText(UUID.randomUUID().toString() + "");
+                txtTableBook.setText(bookingTable);
+
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+                LocalDate localDate = LocalDate.now();
+                txtDateBook.setText(dtf.format(localDate));
+
+                Date date = new Date();
+                String strDateFormat = "hh:mm:ss a";
+                DateFormat dateFormat = new SimpleDateFormat(strDateFormat);
+                String formattedDate = dateFormat.format(date);
+                txtTimeBook.setText(formattedDate);
+            }
+        });
+    }
+
+    private void btnOrderOnClick(JButton btnOrder) {
+        btnOrder.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                OrderDetails order = new OrderDetails();
+                order.setId(txtIDBill.getText());
+                order.setCost(tmpPrice);
+                order.setAmount(Integer.parseInt(txtQuantity.getText()) == 0 ? 1 : Integer.parseInt(txtQuantity.getText()));
+                order.setName(txtSelectedMeal.getText());
+                listOrder.add(order.toVector());
+                listOrderDetails.add(order);
+
+                orderedTable.setModel(new DefaultTableModel(listOrder, CONSTANT.getOrderHeader()) {
+                    boolean[] columnEditables = new boolean[]{
+                        false, false, false, false, false, false
+                    };
+
+                    public boolean isCellEditable(int row, int column) {
+                        return columnEditables[column];
+                    }
+                });
+            }
+        });
+    }
+
+    private void btnPaymentOnClick(JButton btnPayment) {
+        
+    }
+
+    private void btnCheckBillOnClick(JButton btnCheckBill) {
+        btnCheckBill.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                float total = 0;
+                for (OrderDetails listOrderDetail : listOrderDetails) {
+                    total += listOrderDetail.getTotal();
+                }
+                txtTotalVND.setText(total + "");
+            }
+        });
+
+    }
+
 }

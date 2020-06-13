@@ -5,6 +5,8 @@
  */
 package coffeebooking;
 
+import java.util.Vector;
+
 public class CONSTANT {
     
     public String getCurrentStaticContext(String fileName) {
@@ -13,4 +15,22 @@ public class CONSTANT {
     
     public static String ICON_COFFE_DIR = "C:\\Users\\DEll\\Desktop\\cafe_96px.png";
 
+    public static Vector getFoodHeader(){
+        Vector header = new Vector();
+        header.add("Name");
+        header.add("Cost");
+        header.add("Time Estimate");
+        return header;
+    }
+    
+    public static Vector getOrderHeader(){
+//        "ID KHTX", "ID", "Name", "Cost", "Amount", "Total"
+        Vector header = new Vector();
+        header.add("ID");
+        header.add("Name");
+        header.add("Cost");
+        header.add("Amount");
+        header.add("Total");
+        return header;
+    }
 }
