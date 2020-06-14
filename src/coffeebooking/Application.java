@@ -52,9 +52,11 @@ public class Application extends JFrame {
     private ArrayList<Table> listTable;
 
     private JButton btnDrinkSearch;
+    private JButton btnSearchFood;
     private JButton btnPayment;
     private JButton btnCheckBill;
     private Vector listOrder = new Vector();
+    private Vector listNull = new Vector();
     private ArrayList<OrderDetails> listOrderDetails = new ArrayList<>();
 
     private float tmpPrice = 0;
@@ -208,7 +210,7 @@ public class Application extends JFrame {
         txtSearchFood.setBackground(new Color(255, 255, 255));
         tab2.add(txtSearchFood);
 
-        JButton btnSearchFood = new JButton("Search");
+        btnSearchFood = new JButton("Search");
         btnSearchFood.setFont(new Font("SimSun", Font.PLAIN, 16));
         btnSearchFood.setBounds(245, 29, 97, 25);
         tab2.add(btnSearchFood);
@@ -224,20 +226,21 @@ public class Application extends JFrame {
 
         foodTable = new JTable();
 
-        Vector dataModel = new Vector();
-        CoffeeBooking.data.inorder();
-        ArrayList<Meal> output = CoffeeBooking.data.getOutput();
+        Vector dataModelFood = new Vector();
+        CoffeeBooking.dataFood.inorder();
+        ArrayList<Meal> outputFood = CoffeeBooking.dataFood.getOutput();
 
-        for (Meal meal : output) {
-            Vector _meal = new Vector();
-            _meal.add(meal.getName());
-            _meal.add(meal.getPrice());
-            _meal.add(meal.getTimeEstimate());
-            dataModel.add(_meal);
+        for (Meal food : outputFood) {
+            Vector _food = new Vector();
+            _food.add(food.getName());
+            _food.add(food.getPrice());
+            _food.add(food.getTimeEstimate());
+            dataModelFood.add(_food);
         }
 
-        setupTable(dataModel, CONSTANT.getFoodHeader(), foodTable, scrollPane);
-        btnSearchOnClick(btnSearchFood, txtSearchFood, foodTable, scrollPane);
+        setupTable(dataModelFood, CONSTANT.getFoodHeader(), foodTable, scrollPane);
+        // btnSearchOnClick(btnSearchFood, txtSearchFood, foodTable, scrollPane);
+        btnSearchFoodOnClick(btnSearchFood, txtSearchFood, foodTable, scrollPane);
 
         JPanel tab1 = new JPanel();
         tab1.setBackground(new Color(204, 255, 153));
@@ -266,6 +269,18 @@ public class Application extends JFrame {
         panel_3.add(scrollPane_1);
 
         drinkTable = new JTable();
+
+        Vector dataModel = new Vector();
+        CoffeeBooking.data.inorder();
+        ArrayList<Meal> output = CoffeeBooking.data.getOutput();
+
+        for (Meal meal : output) {
+            Vector _meal = new Vector();
+            _meal.add(meal.getName());
+            _meal.add(meal.getPrice());
+            _meal.add(meal.getTimeEstimate());
+            dataModel.add(_meal);
+        }
 
         setupTable(dataModel, CONSTANT.getFoodHeader(), drinkTable, scrollPane_1);
         btnSearchOnClick(btnDrinkSearch, txtDrinkSearch, drinkTable, scrollPane_1);
@@ -300,11 +315,6 @@ public class Application extends JFrame {
         txtQuantity.setColumns(10);
         txtQuantity.setBounds(22, 638, 143, 28);
         pnMenu.add(txtQuantity);
-    }
-
-    private Object[][] loadTable() {
-        Object[][] res = new Object[5][3];
-        return res;
     }
 
     private void listOrder() {
@@ -444,6 +454,29 @@ public class Application extends JFrame {
         });
     }
 
+    private void btnSearchFoodOnClick(JButton btnSearch, JTextField textField, JTable table, JScrollPane scrollPane) {
+        btnSearch.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                String keyword = textField.getText();
+                CoffeeBooking.dataFood.inorder();
+                ArrayList<Meal> output = CoffeeBooking.dataFood.getOutput();
+                List<Meal> filter = output.stream().
+                        filter(meal -> meal.getName().toLowerCase().contains(keyword.toLowerCase()))
+                        .collect(Collectors.toList());
+
+                Vector dataModel = new Vector();
+                for (Meal meal : filter) {
+                    Vector _food = new Vector();
+                    _food.add(meal.getName());
+                    _food.add(meal.getPrice());
+                    _food.add(meal.getTimeEstimate());
+                    dataModel.add(_food);
+                }
+                setupTable(dataModel, CONSTANT.getFoodHeader(), table, scrollPane);
+            }
+        });
+    }
+
     private void setupTable(Vector dataModel, Vector header, JTable table_1, JScrollPane scrollPane) {
         table_1.setModel(new DefaultTableModel(dataModel, header) {
             boolean[] columnEditables = new boolean[]{
@@ -528,7 +561,20 @@ public class Application extends JFrame {
     }
 
     private void btnPaymentOnClick(JButton btnPayment) {
-        
+        btnPayment.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                listOrder = listNull;
+                orderedTable.setModel(new DefaultTableModel(listNull, CONSTANT.getOrderHeader()) {
+                    boolean[] columnEditables = new boolean[]{
+                        false, false, false, false, false, false
+                    };
+
+                    public boolean isCellEditable(int row, int column) {
+                        return columnEditables[column];
+                    }
+                });
+            }
+        });
     }
 
     private void btnCheckBillOnClick(JButton btnCheckBill) {
