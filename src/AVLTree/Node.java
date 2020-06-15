@@ -1,4 +1,4 @@
-package coffeebooking;
+package AVLTree;
 
 public class Node<T extends Comparable> {
     public T data = null;

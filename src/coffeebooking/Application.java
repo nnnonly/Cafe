@@ -7,7 +7,12 @@ import java.awt.Color;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 
+import OrderList.Order;
+import OrderList.OrderList;
+
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import javax.swing.JTextField;
 import javax.swing.JTabbedPane;
@@ -60,6 +65,11 @@ public class Application extends JFrame {
     private ArrayList<OrderDetails> listOrderDetails = new ArrayList<>();
 
     private float tmpPrice = 0;
+    private double tmpTime = 0;
+    float total = 0;
+    double total_time = 0;
+    private int idCus = 0;
+    public static ArrayList<Order> orderList = new ArrayList<>();
 
     /**
      * Create the frame.
@@ -67,7 +77,7 @@ public class Application extends JFrame {
     public Application() {
         setBackground(new Color(255, 255, 255));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100, 100, 1257, 751);
+        setBounds(0, -10, 1257, 751);
         setUndecorated(true);
         setVisible(true);
 
@@ -496,6 +506,7 @@ public class Application extends JFrame {
                 String selectedRow = source.getModel().getValueAt(row, 0) + "";
                 try {
                     tmpPrice = Float.parseFloat(source.getModel().getValueAt(row, 1) + "");
+                    tmpTime = Double.parseDouble(source.getModel().getValueAt(row, 2) + "");
                 } catch (Exception e) {
                     System.out.println("Code ngu roi");
                 }
@@ -539,23 +550,41 @@ public class Application extends JFrame {
     private void btnOrderOnClick(JButton btnOrder) {
         btnOrder.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                OrderDetails order = new OrderDetails();
-                order.setId(txtIDBill.getText());
-                order.setCost(tmpPrice);
-                order.setAmount(Integer.parseInt(txtQuantity.getText()) == 0 ? 1 : Integer.parseInt(txtQuantity.getText()));
-                order.setName(txtSelectedMeal.getText());
-                listOrder.add(order.toVector());
-                listOrderDetails.add(order);
+                if(txtTableBook.getText().length() == 0 &&
+                		txtDateBook.getText().length() == 0 &&
+                		txtIDBill.getText().length() == 0 &&
+                		txtTimeBook.getText().length() == 0) {
+                	showMess("Please book table first!");
+                }
+                else {
+                	if(txtSelectedMeal.getText().length() == 0) {
+                		showMess("Please choose food first!");
+                	}
+                	else {
+                		OrderDetails order = new OrderDetails();
+                        order.setId(txtIDBill.getText());
+                        order.setCost(tmpPrice);
+                        order.setAmount(Integer.parseInt(txtQuantity.getText()) == 0 ? 1 : Integer.parseInt(txtQuantity.getText()));
+                        order.setName(txtSelectedMeal.getText());
+                        order.setTime(tmpTime);
+                        order.setTotal_time(order.getTotalTime());
+                        listOrder.add(order.toVector());
+                        listOrderDetails.add(order);
 
-                orderedTable.setModel(new DefaultTableModel(listOrder, CONSTANT.getOrderHeader()) {
-                    boolean[] columnEditables = new boolean[]{
-                        false, false, false, false, false, false
-                    };
+                        orderedTable.setModel(new DefaultTableModel(listOrder, CONSTANT.getOrderHeader()) {
+                            boolean[] columnEditables = new boolean[]{
+                                false, false, false, false, false, false, false
+                            };
 
-                    public boolean isCellEditable(int row, int column) {
-                        return columnEditables[column];
-                    }
-                });
+                            public boolean isCellEditable(int row, int column) {
+                                return columnEditables[column];
+                            }
+                        });
+                        
+                        txtSelectedMeal.setText("");
+                        txtQuantity.setText("");
+					}
+				}
             }
         });
     }
@@ -564,6 +593,12 @@ public class Application extends JFrame {
         btnPayment.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 listOrder = listNull;
+                txtIDBill.setText("");;
+                txtDateBook.setText("");;
+                txtTimeBook.setText("");
+                txtTableBook.setText("");
+                txtTotalVND.setText("");
+              
                 orderedTable.setModel(new DefaultTableModel(listNull, CONSTANT.getOrderHeader()) {
                     boolean[] columnEditables = new boolean[]{
                         false, false, false, false, false, false
@@ -573,6 +608,13 @@ public class Application extends JFrame {
                         return columnEditables[column];
                     }
                 });
+                tmpPrice = 0;
+                tmpTime = 0;
+                total = 0;
+                total_time = 0;
+                for (int i = 0; i < listOrderDetails.size(); i++) {
+					listOrderDetails.remove(i);
+				}
             }
         });
     }
@@ -580,14 +622,35 @@ public class Application extends JFrame {
     private void btnCheckBillOnClick(JButton btnCheckBill) {
         btnCheckBill.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
-                float total = 0;
+            	idCus += 1;
+                
                 for (OrderDetails listOrderDetail : listOrderDetails) {
                     total += listOrderDetail.getTotal();
+                    total_time += listOrderDetail.getTotalTime();
                 }
-                txtTotalVND.setText(total + "");
+                txtTotalVND.setText(total + "");        
+                
+                String idString = txtIDBill.getText();
+                Meal meal = new Meal(idString, total, total_time);
+                
+                boolean isVip = false;
+                if (total >= 500) {
+                	isVip = true;
+                }
+                orderList.add(new Order(isVip, idCus, meal));
+                try {
+					OrderList.printOrder(orderList);
+					System.out.println("************");
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             }
         });
 
     }
-
+    
+    public void showMess(String msg){
+        JOptionPane.showMessageDialog(null, msg);
+    }
 }

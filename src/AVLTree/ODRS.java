@@ -1,4 +1,4 @@
-package coffeebooking;
+package AVLTree;
 
 import java.util.LinkedList;
 import java.util.Queue;

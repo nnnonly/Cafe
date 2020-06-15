@@ -6,13 +6,13 @@ public class Meal implements Comparable{
     private String name;
     private float price;
     private UUID id;
-    private String timeEstimate;
+    private double timeEstimate;
     // private String description;
 
     public Meal(){
     }
 
-    public Meal(String name, float price, String timeEstimate){
+    public Meal(String name, float price, double timeEstimate){
         this.name = name;
         this.price = price;
         this.timeEstimate = timeEstimate;
@@ -43,11 +43,11 @@ public class Meal implements Comparable{
         this.id = id;
     }
 
-    public String getTimeEstimate() {
+    public double getTimeEstimate() {
         return timeEstimate;
     }
 
-    public void setTimeEstimate(String timeEstimate) {
+    public void setTimeEstimate(double timeEstimate) {
         this.timeEstimate = timeEstimate;
     }
 

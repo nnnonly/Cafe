@@ -13,7 +13,7 @@ public class CONSTANT {
 		return System.getProperty("user.dir") + "\\src\\Interface\\static\\" + fileName;
     }
     
-    public static String ICON_COFFE_DIR = "C:\\Users\\DEll\\Desktop\\cafe_96px.png";
+    public static String ICON_COFFE_DIR = "D:\\Giao trinh + Bai tap\\2018-2019\\2018.2\\Tin 4\\javaProjects\\Cafe\\src\\cafe_96px.png";
 
     public static Vector getFoodHeader(){
         Vector header = new Vector();
@@ -31,6 +31,8 @@ public class CONSTANT {
         header.add("Cost");
         header.add("Amount");
         header.add("Total");
+        header.add("Time");
+        header.add("Total_time");
         return header;
     }
 }

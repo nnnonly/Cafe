@@ -1,4 +1,4 @@
-package coffeebooking;
+package AVLTree;
 
 // T1, T2 and T3 are subtrees of the tree
 // rooted with y (on the left side) or x
