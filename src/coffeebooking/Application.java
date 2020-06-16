@@ -629,6 +629,7 @@ public class Application extends JFrame {
                     total_time += listOrderDetail.getTotalTime();
                 }
                 txtTotalVND.setText(total + "");        
+           
                 
                 String idString = txtIDBill.getText();
                 Meal meal = new Meal(idString, total, total_time);
@@ -644,6 +645,12 @@ public class Application extends JFrame {
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+				}
+                
+                total = 0;
+                total_time = 0;
+                for (int i = 0; i < listOrderDetails.size(); i++) {
+					listOrderDetails.remove(i);
 				}
             }
         });
